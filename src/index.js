@@ -4,20 +4,21 @@ import app from "./app.js";
 import logger from "./configs/logger.config.js";
 ///import SocketServer from "./SocketServer.js";
 //env variables
-//const { DATABASE_URL } = process.env;
-const DATABASE_URL = "mongodb://localhost:27017/WHATSAPP"
+const { DATABASE_URL } = process.env;
+//const DATABASE_URL = "mongodb://localhost:27017/WHATSAPP"
 
 const PORT = process.env.PORT || 8000;
 //mongoose.set(strictQuery, true)
 //exit on mognodb error
 mongoose.connection.on("error", (err) => {
     logger.error(`Mongodb connection error : ${err}`);
+  
     process.exit(1);
 });
 
 //mongodb debug mode
 if (process.env.NODE_ENV !== "production") {
-    mongoose.set("debug", true);
+    mongoose.set("debug",  true );
 }
 
 //mongodb connection
@@ -28,6 +29,7 @@ mongoose
     })
     .then(() => {
         logger.info("Connected to Mongodb.");
+       // console.log(`Mongodb connecti `, process.pid)
     });
 
 let server;
@@ -60,17 +62,17 @@ const exitHandler = () => {
     }
 };
 
-// const unexpectedErrorHandler = (error) => {
-//     logger.error(error);
-//     exitHandler();
-// };
-// process.on("uncaughtException", unexpectedErrorHandler);
-// process.on("unhandledRejection", unexpectedErrorHandler);
+const unexpectedErrorHandler = (error) => {
+    logger.error(error);
+    exitHandler();
+};
+process.on("uncaughtException", unexpectedErrorHandler);
+process.on("unhandledRejection", unexpectedErrorHandler);
 
-// //SIGTERM
-// process.on("SIGTERM", () => {
-//     if (server) {
-//         logger.info("Server closed.");
-//         process.exit(1);
-//     }
-// });
+//SIGTERM
+process.on("SIGTERM", () => {
+    if (server) {
+        logger.info("Server closed.");
+        process.exit(1);
+    }
+});
